@@ -1,6 +1,7 @@
 package org.dtrejo.test.springboot.app.services.impl;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.dtrejo.test.springboot.app.models.Banco;
 import org.dtrejo.test.springboot.app.models.Cuenta;
@@ -77,6 +78,20 @@ public class ServiceImpl implements IService {
 		// bancoRepository.update(banco);
 		bancoRepository.save(banco); // JPA
 
+	}
+
+	@Override
+	@Transactional(readOnly= true)
+	public List<Cuenta> findAll() {
+		// TODO Auto-generated method stub
+		return cuentaRepository.findAll();
+	}
+
+	@Override
+	@Transactional()
+	public Cuenta save(Cuenta cuenta) {
+		// TODO Auto-generated method stub
+		return cuentaRepository.save(cuenta);
 	}
 
 }

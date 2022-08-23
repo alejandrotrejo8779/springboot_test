@@ -13,11 +13,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.invocation.finder.VerifiableInvocationsFinder;
 
 //import org.mockito.Mockito;
 import static  org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -179,5 +182,60 @@ class SpringbootTestApplicationTests {
 		verify(cuentaRepository,times(2)).findById(1L);
 	}
 	
+
+	@Test
+	void testFindAll(){
+    
+      //Given
+	  List<Cuenta> datos = Arrays.asList(cuenta001().orElseThrow(),
+	  cuenta002().orElseThrow()
+	   );
+	   when(cuentaRepository.findAll()).thenReturn(datos);
+
+
+     //When
+      List<Cuenta> cuentas = service.findAll();
+
+	  assertFalse(cuentas.isEmpty());
+	  assertEquals(2, cuentas.size());
+	  //Compara los objetos con el metodo equals
+	  assertTrue(cuentas.contains(cuenta002().orElseThrow()));
+
+	  verify(cuentaRepository).findAll();
+
+	}
+
+
+	@Test
+	void testSave(){
+
+		//Given
+		Cuenta cuentaPepe= new Cuenta(null,"Pepe" , new BigDecimal("3000"));
+
+		 // when(cuentaService.save(any())).thenReturn(cuenta);
+
+
+         //Como estamos probando el controlador y no el motor de base de datos se simula el id de la siguiente manera
+         //Cuento se invoque el metodo save, con cualquier objeto cuenta(any) se le asigna lo que esta en la expresion lamba
+         when(cuentaRepository.save(any())).then(invocation -> {
+
+            Cuenta c= invocation.getArgument(0);
+            c.setId(3L);
+
+            return c;
+
+         }); 
+		 //Then
+		Cuenta cuenta= service.save(cuentaPepe);
+
+		 assertEquals(3, cuenta.getId());
+		 assertEquals("Pepe", cuenta.getPersona());
+
+		 assertEquals("3000", cuenta.getSaldo().toPlainString());
+
+		 verify(cuentaRepository).save(any());
+	}
+
+
 
 }
